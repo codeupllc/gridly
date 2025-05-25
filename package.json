@@ -1,8 +1,8 @@
 {
-    "name": "@jojo/gridly",
+    "name": "@codeupllc/gridly",
     "version": "0.1.0",
     "description": "A flexible table library built on top of TanStack Table, compatible with React and Angular",
-    "private": true,
+    "private": false,
     "main": "dist/react/index.js",
     "types": "dist/react/index.d.ts",
     "scripts": {
@@ -18,7 +18,8 @@
         "@angular/core": "^17.0.0",
         "@angular/common": "^17.0.0",
         "@angular/forms": "^17.0.0",
-        "rxjs": "^7.8.0"
+        "rxjs": "^7.8.0",
+        "@hello-pangea/dnd": "^18.0.1"
     },
     "devDependencies": {
         "@types/react": "^18.2.0",
@@ -36,5 +37,21 @@
         "@angular/common": "^17.0.0",
         "@angular/forms": "^17.0.0",
         "rxjs": "^7.8.0"
-    }
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/jbe-codeup/gridly.git"
+    },
+    "keywords": [
+        "grid",
+        "table",
+        "react",
+        "angular"
+    ],
+    "author": "CodeUp LLC",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/jbe-codeup/gridly/issues"
+    },
+    "homepage": "https://github.com/jbe-codeup/gridly#readme"
 }
