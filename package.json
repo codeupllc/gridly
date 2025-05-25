@@ -1,6 +1,6 @@
 {
     "name": "@codeupllc/gridly",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "description": "A flexible table library built on top of TanStack Table, compatible with React and Angular",
     "private": false,
     "main": "dist/react/index.js",
