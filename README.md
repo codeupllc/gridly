@@ -52,61 +52,6 @@ function MyTable() {
 }
 ```
 
-## Angular Usage
-
-```typescript
-// app.module.ts
-import { NgModule } from '@angular/core';
-import { GridlyModule } from 'gridly';
-
-@NgModule({
-  imports: [GridlyModule],
-  // ...
-})
-export class AppModule { }
-
-// your.component.ts
-import { Component } from '@angular/core';
-import { TableColumn } from 'gridly';
-
-@Component({
-  selector: 'app-your-component',
-  template: `
-    <gridly-table
-      [data]="data"
-      [columns]="columns"
-      [initialPageSize]="10"
-      (onRowClick)="handleRowClick($event)">
-    </gridly-table>
-  `
-})
-export class YourComponent {
-  data = [
-    { id: '1', name: 'John Doe', email: 'john@example.com' },
-    { id: '2', name: 'Jane Smith', email: 'jane@example.com' },
-  ];
-
-  columns: TableColumn<any>[] = [
-    {
-      id: 'name',
-      header: 'Name',
-      accessor: row => row.name,
-      sortable: true
-    },
-    {
-      id: 'email',
-      header: 'Email',
-      accessor: row => row.email,
-      sortable: true
-    }
-  ];
-
-  handleRowClick(row: any) {
-    console.log('Clicked row:', row);
-  }
-}
-```
-
 ## Features
 
 - Sorting
@@ -116,7 +61,7 @@ export class YourComponent {
 - Customizable styling
 - TypeScript support
 - Framework agnostic core
-- React and Angular implementations
+- React implementation
 
 ## Props
 
@@ -127,3 +72,55 @@ export class YourComponent {
 | globalFilter | string | Optional global filter string |
 | initialPageSize | number | Initial number of rows per page (default: 10) |
 | onRowClick | (row: T) => void | Optional callback when a row is clicked |
+
+## Theming
+
+Gridly provides several built-in themes: `light`, `dark`, `blue`, and `green`. You can select a theme using the `theme` prop:
+
+```tsx
+<ReactTable ... theme="dark" />
+```
+
+### Custom Themes
+
+You can provide your own custom theme by passing a `customTheme` prop. This allows you to override any of the theme classes:
+
+```tsx
+<ReactTable
+  ...
+  theme="dark"
+  customTheme={{
+    container: 'bg-neutral-900',
+    header: 'bg-neutral-800 text-yellow-200',
+    row: 'text-yellow-100',
+    rowHover: 'hover:bg-neutral-800',
+    border: 'border-yellow-700',
+  }}
+/>
+```
+
+**Note:** If you use custom Tailwind classes (especially dynamic ones), you must add them to your Tailwind safelist so they are included in your build.
+
+### Tailwind Safelist Example
+
+Add all classes you use in your themes (including custom ones) to your `tailwind.config.js` safelist:
+
+```js
+safelist: [
+  'bg-white', 'bg-gray-900', 'bg-blue-50', 'bg-green-50',
+  'bg-gray-100', 'bg-gray-800', 'bg-blue-200', 'bg-green-200',
+  'bg-blue-100', 'bg-blue-500', 'bg-green-500', 'bg-gray-700',
+  'bg-green-700',
+  'text-gray-700', 'text-gray-100', 'text-blue-900', 'text-green-900',
+  'text-blue-800', 'text-green-300', 'text-white', 'text-green-200',
+  'hover:bg-gray-50', 'hover:bg-gray-800', 'hover:bg-blue-100', 'hover:bg-green-100',
+  'border-b', 'border-r', 'last:border-r-0',
+  'border-gray-200', 'border-gray-700', 'border-blue-200', 'border-green-200',
+  // Add your custom classes here
+  'bg-neutral-900', 'bg-neutral-800', 'text-yellow-200', 'text-yellow-100', 'border-yellow-700',
+]
+```
+
+## License
+
+MIT
