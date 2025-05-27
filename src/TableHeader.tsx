@@ -1,8 +1,28 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { flexRender } from '@tanstack/react-table';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 
 export function TableHeader({ table, theme, cellPadding, enableGrouping, onDragEnd }: any) {
+    const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+    const allLeafColumns = table.getAllLeafColumns();
+    const visibleColumns = allLeafColumns.filter((col: any) => col.getIsVisible());
+
+    // Close dropdown on outside click
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setShowDropdown(false);
+            }
+        }
+        if (showDropdown) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showDropdown]);
+
     return (
         <thead>
             {table.getHeaderGroups().map((headerGroup: any) => (
@@ -53,6 +73,34 @@ export function TableHeader({ table, theme, cellPadding, enableGrouping, onDragE
                                         )}
                                     </Draggable>
                                 ))}
+                                {/* Column visibility toggle button */}
+                                <th className={`${cellPadding} text-center font-semibold select-none ${theme.header} border-b ${theme.border}`} style={{ position: 'relative', minWidth: 40 }}>
+                                    <button
+                                        className="px-2 py-1 rounded border bg-white shadow hover:bg-gray-50 text-xs"
+                                        onClick={e => { e.stopPropagation(); setShowDropdown(v => !v); }}
+                                        aria-label="Show/hide columns"
+                                    >
+                                        Columns ▾
+                                    </button>
+                                    {showDropdown && (
+                                        <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white border rounded shadow z-10 p-2 text-left">
+                                            <div className="font-semibold mb-2 text-sm">Show Columns</div>
+                                            {allLeafColumns.map((col: any) => (
+                                                <label key={col.id} className="flex items-center gap-2 py-1 text-sm">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={col.getIsVisible()}
+                                                        onChange={() => col.toggleVisibility()}
+                                                        disabled={visibleColumns.length === 1 && col.getIsVisible()}
+                                                    />
+                                                    {typeof col.columnDef.header === 'function'
+                                                        ? col.columnDef.header({ column: col })
+                                                        : col.columnDef.header}
+                                                </label>
+                                            ))}
+                                        </div>
+                                    )}
+                                </th>
                                 {provided.placeholder}
                             </tr>
                         )}
