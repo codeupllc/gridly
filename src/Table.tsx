@@ -13,6 +13,7 @@ import {
     GroupingState,
     Row,
     Cell,
+    ColumnOrderState,
 } from '@tanstack/react-table';
 import { DragDropContext, Droppable, Draggable, DropResult, DroppableProvided, DraggableProvided } from '@hello-pangea/dnd';
 import { TableGrouping } from './TableGrouping';
@@ -69,6 +70,9 @@ export function Table<T extends object>({
     const [grouping, setGrouping] = useState<GroupingState>(groupBy);
     const [isDragging, setIsDragging] = useState(false);
     const [expanded, setExpanded] = useState({});
+    const [columnOrder, setColumnOrder] = useState<ColumnOrderState>(() =>
+        columns.map(col => (col as any).id || (col as any).accessorKey)
+    );
 
     const table = useReactTable({
         data,
@@ -79,11 +83,13 @@ export function Table<T extends object>({
             globalFilter,
             grouping: enableGrouping ? grouping : [],
             expanded,
+            columnOrder,
         },
         onSortingChange: setSorting,
         onPaginationChange: setPagination,
         onGroupingChange: setGrouping,
         onExpandedChange: setExpanded,
+        onColumnOrderChange: setColumnOrder,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
@@ -95,11 +101,11 @@ export function Table<T extends object>({
     const handleDragEnd = (result: DropResult) => {
         if (!result.destination) return;
 
-        const items = Array.from(grouping);
+        const items = Array.from(columnOrder);
         const [reorderedItem] = items.splice(result.source.index, 1);
         items.splice(result.destination.index, 0, reorderedItem);
 
-        setGrouping(items);
+        setColumnOrder(items);
     };
 
     // Theme class maps
@@ -164,12 +170,13 @@ export function Table<T extends object>({
                     setIsDragging={setIsDragging}
                 />
             )}
-            <table className={`min-w-full rounded shadow ${t.container} border-separate border-spacing-0`}>
+            <table className={`min-w-full rounded shadow table-fixed ${t.container} border-separate border-spacing-0`}>
                 <TableHeader
                     table={table}
                     theme={t}
                     cellPadding={cellPadding}
                     enableGrouping={enableGrouping}
+                    onDragEnd={handleDragEnd}
                 />
                 <TableBody
                     table={table}
