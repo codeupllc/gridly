@@ -16,6 +16,9 @@ export function TableGrouping({ grouping, setGrouping, table, theme, isDragging,
             }}
         >
             <h3 className="text-sm font-semibold mb-2">Group By</h3>
+            <div className="text-xs text-gray-500 mb-2 flex items-center gap-1">
+                <span>Drag <span className="font-bold">≡</span> from a column header here to group</span>
+            </div>
             <div className="flex gap-2 min-h-[40px] items-center">
                 {grouping.length === 0 ? (
                     <div className="flex items-center gap-2 text-gray-400">

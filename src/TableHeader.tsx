@@ -34,50 +34,68 @@ export function TableHeader({ table, theme, cellPadding, enableGrouping, onDragE
                                 {...provided.droppableProps}
                             >
                                 {headerGroup.headers.map((header: any, idx: number) => (
-                                    <Draggable
+                                    <th
                                         key={header.id}
-                                        draggableId={header.id}
-                                        index={idx}
+                                        className={`${cellPadding} text-center font-semibold select-none ${theme.header} border-b ${theme.border} border-r ${theme.border} last:border-r-0`}
                                     >
-                                        {(provided, snapshot) => (
-                                            <th
-                                                ref={provided.innerRef}
-                                                {...provided.draggableProps}
-                                                {...provided.dragHandleProps}
-                                                className={`${cellPadding} text-center font-semibold select-none ${theme.header} border-b ${theme.border} border-r ${theme.border} last:border-r-0
-                                                    cursor-grab active:cursor-grabbing
-                                                    ${snapshot.isDragging ? 'opacity-50' : ''}
-                                                    transition-all duration-200`}
-                                                onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                                        <div className="flex items-center justify-center gap-2">
+                                            {/* Group drag handle outside Draggable */}
+                                            {enableGrouping && (
+                                                <span
+                                                    draggable
+                                                    onDragStart={e => {
+                                                        e.stopPropagation();
+                                                        e.dataTransfer.setData('text/plain', header.column.id);
+                                                    }}
+                                                    className="cursor-grab text-gray-400 hover:text-blue-600 mr-1"
+                                                    title="Drag to group by this column"
+                                                    aria-label="Group by"
+                                                    tabIndex={-1}
+                                                >
+                                                    &#8801; {/* Group by: Drag to group */}
+                                                </span>
+                                            )}
+                                            {/* Draggable for column reordering */}
+                                            <Draggable
+                                                key={header.id}
+                                                draggableId={header.id}
+                                                index={idx}
                                             >
-                                                <div className="flex items-center justify-center gap-2">
-                                                    <span className="text-gray-400 opacity-0 group-hover:opacity-100">
-                                                        ⋮⋮
+                                                {(provided, snapshot) => (
+                                                    <span
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                        className={`flex items-center gap-2 cursor-grab active:cursor-grabbing ${snapshot.isDragging ? 'opacity-50' : ''} transition-all duration-200`}
+                                                        onClick={header.column.getCanSort() ? header.column.getToggleSortingHandler() : undefined}
+                                                        title="Drag to reorder columns"
+                                                        aria-label="Reorder column"
+                                                    >
+                                                        {flexRender(header.column.columnDef.header, header.getContext())}
+                                                        {header.column.getIsSorted() === 'asc' && ' ▲'}
+                                                        {header.column.getIsSorted() === 'desc' && ' ▼'}
                                                     </span>
-                                                    {flexRender(header.column.columnDef.header, header.getContext())}
-                                                    {header.column.getIsSorted() === 'asc' && ' ▲'}
-                                                    {header.column.getIsSorted() === 'desc' && ' ▼'}
+                                                )}
+                                            </Draggable>
+                                        </div>
+                                        {header.column.getCanFilter() ? (
+                                            header.column.columnDef.filterType === 'amount' ? (
+                                                <AmountFilterPopover column={header.column} />
+                                            ) : (
+                                                <div>
+                                                    <input
+                                                        type="text"
+                                                        value={String(header.column.getFilterValue() ?? '')}
+                                                        onChange={e => header.column.setFilterValue(e.target.value)}
+                                                        placeholder={`Filter...`}
+                                                        className="mt-1 block w-full border rounded px-2 py-1 text-sm"
+                                                    />
                                                 </div>
-                                                {header.column.getCanFilter() ? (
-                                                    header.column.columnDef.filterType === 'amount' ? (
-                                                        <AmountFilterPopover column={header.column} />
-                                                    ) : (
-                                                        <div>
-                                                            <input
-                                                                type="text"
-                                                                value={String(header.column.getFilterValue() ?? '')}
-                                                                onChange={e => header.column.setFilterValue(e.target.value)}
-                                                                placeholder={`Filter...`}
-                                                                className="mt-1 block w-full border rounded px-2 py-1 text-sm"
-                                                            />
-                                                        </div>
-                                                    )
-                                                ) : null}
-                                            </th>
-                                        )}
-                                    </Draggable>
+                                            )
+                                        ) : null}
+                                    </th>
                                 ))}
-                                {/* Column visibility toggle button */}
+                                {/* Render the column visibility toggle as a static <th> at the end, not part of drag-and-drop or grouping */}
                                 <th className={`${cellPadding} text-center font-semibold select-none ${theme.header} border-b ${theme.border}`} style={{ position: 'relative', minWidth: 40 }}>
                                     <button
                                         className="px-2 py-1 rounded border bg-white shadow hover:bg-gray-50 text-xs"
