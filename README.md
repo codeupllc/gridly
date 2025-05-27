@@ -151,6 +151,41 @@ if (column.columnDef.meta?.canGroup) {
 
 This approach is type-safe and fully supported by TanStack Table v8+.
 
+## Custom Pagination and Global Search
+
+You can provide your own pagination or global search UI by passing `customPagination` or `customGlobalSearch` props:
+
+```tsx
+<GridlyTable
+  ...
+  showGlobalSearch={false} // Hide default search bar
+  customGlobalSearch={<MySearchComponent onSearch={setGlobalFilter} />}
+  customPagination={table => <MyPagination table={table} />}
+/>
+```
+
+- If `customPagination` is a function, it will be called with the table instance and should return a React node. This gives you full control over pagination events and state.
+- If `customPagination` is a React node, it will be rendered as-is (legacy support).
+- If `customGlobalSearch` is provided, it will be rendered instead of the built-in search bar.
+- Use `showGlobalSearch={false}` to hide the default search bar entirely.
+
+### Example Custom Pagination
+
+```tsx
+function MyPagination({ table }) {
+  const pageIndex = table.getState().pagination.pageIndex;
+  return (
+    <div>
+      <button onClick={() => table.setPageIndex(0)} disabled={pageIndex === 0}>{'<<'}</button>
+      <button onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>{'<'}</button>
+      <span>Page {pageIndex + 1} of {table.getPageCount()}</span>
+      <button onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>{'>'}</button>
+      <button onClick={() => table.setPageIndex(table.getPageCount() - 1)} disabled={!table.getCanNextPage()}>{'>>'}</button>
+    </div>
+  );
+}
+```
+
 ## License
 
 MIT
