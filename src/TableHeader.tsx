@@ -40,7 +40,7 @@ export function TableHeader({ table, theme, cellPadding, enableGrouping, onDragE
                                     >
                                         <div className="flex items-center justify-center gap-2">
                                             {/* Group drag handle outside Draggable */}
-                                            {enableGrouping && (
+                                            {enableGrouping && (header.column.columnDef.meta?.canGroup !== false) && (
                                                 <span
                                                     draggable
                                                     onDragStart={e => {
@@ -79,7 +79,7 @@ export function TableHeader({ table, theme, cellPadding, enableGrouping, onDragE
                                             </Draggable>
                                         </div>
                                         {header.column.getCanFilter() ? (
-                                            header.column.columnDef.filterType === 'amount' ? (
+                                            header.column.columnDef.meta?.filterType === 'amount' ? (
                                                 <AmountFilterPopover column={header.column} />
                                             ) : (
                                                 <div>

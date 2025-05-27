@@ -121,6 +121,36 @@ safelist: [
 ]
 ```
 
+## Custom Column Properties with `meta`
+
+Gridly supports custom column properties using the `meta` field in your column definitions. This is the recommended way to add custom flags or configuration for your columns, such as enabling/disabling grouping or specifying a custom filter type.
+
+### Example
+
+```js
+columnHelper.accessor('amount', {
+  header: () => 'Amount',
+  // ...other props...
+  meta: {
+    canGroup: false,      // disables grouping for this column
+    filterType: 'amount', // enables custom filter UI
+  },
+  filterFn: (row, columnId, filterValue) => { /* ... */ }
+})
+```
+
+### Accessing Custom Properties
+
+In your table components (or in Gridly), access these properties via `column.columnDef.meta`:
+
+```js
+if (column.columnDef.meta?.canGroup) {
+  // ...
+}
+```
+
+This approach is type-safe and fully supported by TanStack Table v8+.
+
 ## License
 
 MIT
