@@ -59,15 +59,19 @@ export function TableHeader({ table, theme, cellPadding, enableGrouping, onDragE
                                                     {header.column.getIsSorted() === 'desc' && ' ▼'}
                                                 </div>
                                                 {header.column.getCanFilter() ? (
-                                                    <div>
-                                                        <input
-                                                            type="text"
-                                                            value={String(header.column.getFilterValue() ?? '')}
-                                                            onChange={e => header.column.setFilterValue(e.target.value)}
-                                                            placeholder={`Filter...`}
-                                                            className="mt-1 block w-full border rounded px-2 py-1 text-sm"
-                                                        />
-                                                    </div>
+                                                    header.column.columnDef.filterType === 'amount' ? (
+                                                        <AmountFilterPopover column={header.column} />
+                                                    ) : (
+                                                        <div>
+                                                            <input
+                                                                type="text"
+                                                                value={String(header.column.getFilterValue() ?? '')}
+                                                                onChange={e => header.column.setFilterValue(e.target.value)}
+                                                                placeholder={`Filter...`}
+                                                                className="mt-1 block w-full border rounded px-2 py-1 text-sm"
+                                                            />
+                                                        </div>
+                                                    )
                                                 ) : null}
                                             </th>
                                         )}
@@ -108,5 +112,57 @@ export function TableHeader({ table, theme, cellPadding, enableGrouping, onDragE
                 </DragDropContext>
             ))}
         </thead>
+    );
+}
+
+function AmountFilterPopover({ column }: { column: any }) {
+    const [show, setShow] = useState(false);
+    const ref = useRef<HTMLDivElement>(null);
+    const filterValue = column.getFilterValue() || { op: '=', value: '' };
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (ref.current && !ref.current.contains(event.target as Node)) {
+                setShow(false);
+            }
+        }
+        if (show) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [show]);
+    return (
+        <div className="relative inline-block">
+            <button
+                className="ml-1 text-gray-400 hover:text-blue-600"
+                onClick={e => { e.stopPropagation(); setShow(v => !v); }}
+                aria-label="Filter Amount"
+                tabIndex={-1}
+            >
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" strokeWidth="2" d="M4 6h16M7 12h10m-4 6h4" /></svg>
+            </button>
+            {show && (
+                <div ref={ref} className="absolute z-20 right-0 mt-2 w-48 bg-white border rounded shadow p-3 flex flex-col gap-2">
+                    <label className="text-xs font-semibold mb-1">Filter Amount</label>
+                    <select
+                        className="border rounded px-2 py-1 text-sm"
+                        value={filterValue.op}
+                        onChange={e => column.setFilterValue({ ...filterValue, op: e.target.value })}
+                    >
+                        <option value="=">=</option>
+                        <option value=">">≥</option>
+                        <option value="<">≤</option>
+                    </select>
+                    <input
+                        type="number"
+                        className="border rounded px-2 py-1 text-sm mt-1"
+                        value={filterValue.value}
+                        onChange={e => column.setFilterValue({ ...filterValue, value: e.target.value })}
+                        placeholder="Enter amount"
+                    />
+                </div>
+            )}
+        </div>
     );
 } 
