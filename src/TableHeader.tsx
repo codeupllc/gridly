@@ -95,34 +95,6 @@ export function TableHeader({ table, theme, cellPadding, enableGrouping, onDragE
                                         ) : null}
                                     </th>
                                 ))}
-                                {/* Render the column visibility toggle as a static <th> at the end, not part of drag-and-drop or grouping */}
-                                <th className={`${cellPadding} text-center font-semibold select-none ${theme.header} border-b ${theme.border}`} style={{ position: 'relative', minWidth: 40 }}>
-                                    <button
-                                        className="px-2 py-1 rounded border bg-white shadow hover:bg-gray-50 text-xs"
-                                        onClick={e => { e.stopPropagation(); setShowDropdown(v => !v); }}
-                                        aria-label="Show/hide columns"
-                                    >
-                                        Columns ▾
-                                    </button>
-                                    {showDropdown && (
-                                        <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white border rounded shadow z-10 p-2 text-left">
-                                            <div className="font-semibold mb-2 text-sm">Show Columns</div>
-                                            {allLeafColumns.map((col: any) => (
-                                                <label key={col.id} className="flex items-center gap-2 py-1 text-sm">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={col.getIsVisible()}
-                                                        onChange={() => col.toggleVisibility()}
-                                                        disabled={visibleColumns.length === 1 && col.getIsVisible()}
-                                                    />
-                                                    {typeof col.columnDef.header === 'function'
-                                                        ? col.columnDef.header({ column: col })
-                                                        : col.columnDef.header}
-                                                </label>
-                                            ))}
-                                        </div>
-                                    )}
-                                </th>
                                 {provided.placeholder}
                             </tr>
                         )}

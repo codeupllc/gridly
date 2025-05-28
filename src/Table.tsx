@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     useReactTable,
     getCoreRowModel,
@@ -99,6 +99,8 @@ export function Table<T extends object>({
         columns.map(col => (col as any).id || (col as any).accessorKey)
     );
     const [searchValue, setSearchValue] = useState(globalFilter);
+    const [showDropdown, setShowDropdown] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
     const table = useReactTable({
         data,
@@ -126,6 +128,9 @@ export function Table<T extends object>({
         globalFilterFn: 'myGlobalFilter' as any,
         onGlobalFilterChange,
     });
+
+    const allLeafColumns = table.getAllLeafColumns();
+    const visibleColumns = allLeafColumns.filter((col: any) => col.getIsVisible());
 
     useEffect(() => {
         const handler = setTimeout(() => {
@@ -202,8 +207,53 @@ export function Table<T extends object>({
     // Merge customTheme if provided
     const t = customTheme ? { ...themeClasses[theme] || themeClasses.light, ...customTheme } : (themeClasses[theme] || themeClasses.light);
 
+    // Close dropdown on outside click
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setShowDropdown(false);
+            }
+        }
+        if (showDropdown) {
+            document.addEventListener('mousedown', handleClickOutside);
+        } else {
+            document.removeEventListener('mousedown', handleClickOutside);
+        }
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, [showDropdown]);
+
     return (
         <div className={`overflow-x-auto ${t.container} p-4`}>
+            {/* Column visibility button, top-right above table */}
+            <div className="flex justify-end mb-2">
+                <div style={{ position: 'relative' }}>
+                    <button
+                        className="px-2 py-1 rounded border bg-white shadow hover:bg-gray-50 text-xs"
+                        onClick={e => { e.stopPropagation(); setShowDropdown(v => !v); }}
+                        aria-label="Show/hide columns"
+                    >
+                        Columns ▾
+                    </button>
+                    {showDropdown && (
+                        <div ref={dropdownRef} className="absolute right-0 mt-2 w-48 bg-white border rounded shadow z-10 p-2 text-left">
+                            <div className="font-semibold mb-2 text-sm">Show Columns</div>
+                            {allLeafColumns.map((col: any) => (
+                                <label key={col.id} className="flex items-center gap-2 py-1 text-sm">
+                                    <input
+                                        type="checkbox"
+                                        checked={col.getIsVisible()}
+                                        onChange={() => col.toggleVisibility()}
+                                        disabled={visibleColumns.length === 1 && col.getIsVisible()}
+                                    />
+                                    {typeof col.columnDef.header === 'function'
+                                        ? col.columnDef.header({ column: col })
+                                        : col.columnDef.header}
+                                </label>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            </div>
             {enableGrouping && (
                 <TableGrouping
                     grouping={grouping}
