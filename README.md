@@ -11,8 +11,9 @@ npm install gridly
 ## React Usage
 
 ```tsx
-import { ReactTable } from 'gridly';
+import { GridlyTable } from '@codeupllc/gridly';
 import { createColumnHelper } from '@tanstack/react-table';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 // Define your data type
 type User = {

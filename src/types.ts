@@ -8,4 +8,6 @@ export interface TableTheme {
     groupedRow?: string;
     selected?: string;
     border?: string;
+    input?: string;
+    inputPlaceholder?: string;
 } 
