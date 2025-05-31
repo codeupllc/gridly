@@ -1,6 +1,6 @@
 {
     "name": "@codeupllc/gridly",
-    "version": "0.1.2",
+    "version": "0.1.6",
     "description": "A flexible table library built on top of TanStack Table, compatible with React and Angular",
     "private": false,
     "main": "dist/react/index.js",
@@ -33,7 +33,7 @@
     },
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/jbe-codeup/gridly.git"
+        "url": "git+https://github.com/codeupllc/gridly"
     },
     "keywords": [
         "grid",

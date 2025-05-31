@@ -19,9 +19,9 @@
 ## Installation
 
 ```bash
-npm install gridly
+npm install @codeupllc/gridly
 # or
-yarn add gridly
+yarn add @codeupllc/gridly
 ```
 
 ---
@@ -121,10 +121,3 @@ We welcome contributions! Please open an issue or pull request for bugs, feature
 ## License
 
 MIT
-
----
-
-## Community & Support
-
-- [Discussions](https://github.com/YOUR_ORG/gridly/discussions)
-- [Issues](https://github.com/YOUR_ORG/gridly/issues)
