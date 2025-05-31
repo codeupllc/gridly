@@ -3,6 +3,25 @@ import { flexRender } from '@tanstack/react-table';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { FilterPopover } from './components/FilterPopover';
 import { SliderRangeFilter } from './components/SliderRangeFilter';
+import styled from 'styled-components';
+
+const StyledTh = styled.th`
+  padding: 0.25rem 0.5rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #222;
+  background: #f8fafc;
+  border-bottom: 1.5px solid #e5e7eb;
+  white-space: nowrap;
+  letter-spacing: 0.01em;
+  vertical-align: middle;
+  &:first-child {
+    border-top-left-radius: 0.75rem;
+  }
+  &:last-child {
+    border-top-right-radius: 0.75rem;
+  }
+`;
 
 export function TableHeader({ table, theme, cellPadding, enableGrouping, onDragEnd }: any) {
     const [showDropdown, setShowDropdown] = useState(false);
@@ -36,7 +55,7 @@ export function TableHeader({ table, theme, cellPadding, enableGrouping, onDragE
                                 {...provided.droppableProps}
                             >
                                 {headerGroup.headers.map((header: any, idx: number) => (
-                                    <th
+                                    <StyledTh
                                         key={header.id}
                                         className={`${cellPadding} select-none ${theme.header} border-b ${theme.border} border-r ${theme.border} last:border-r-0`}
                                     >
@@ -106,7 +125,7 @@ export function TableHeader({ table, theme, cellPadding, enableGrouping, onDragE
                                                 </div>
                                             )
                                         ) : null}
-                                    </th>
+                                    </StyledTh>
                                 ))}
                                 {provided.placeholder}
                             </tr>
