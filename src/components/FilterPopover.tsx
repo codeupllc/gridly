@@ -1,18 +1,15 @@
-import styled from 'styled-components';
+import React, { forwardRef } from 'react';
 
-export const FilterPopover = styled.div`
-  position: absolute;
-  z-index: 20;
-  right: 0;
-  margin-top: 0.5rem;
-  width: 12rem;
-  background: #fff;
-  color: #222;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`; 
+export const FilterPopover = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ children, className = '', ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={`absolute right-0 z-20 mt-2 flex w-52 flex-col gap-2.5 rounded-2xl border border-stone-100 bg-white p-4 text-stone-800 shadow-[0_24px_60px_-24px_rgba(28,25,23,0.35)] ${className}`}
+      {...rest}
+    >
+      {children}
+    </div>
+  )
+);
+
+FilterPopover.displayName = 'FilterPopover';

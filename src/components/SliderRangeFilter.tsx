@@ -1,38 +1,9 @@
 import React from 'react';
 import { Range, getTrackBackground } from 'react-range';
-import styled from 'styled-components';
 
 const STEP = 1;
-
-const RangeContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-`;
-
-const RangeLabel = styled.label`
-  font-size: 0.95rem;
-  color: #444;
-`;
-
-const StyledTrack = styled.div`
-  height: 6px;
-  width: 100%;
-  border-radius: 4px;
-  background: #e5e7eb;
-  margin: 1.5em 0;
-`;
-
-const Thumb = styled.div`
-  height: 20px;
-  width: 20px;
-  border-radius: 50%;
-  background: #2563eb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 6px #aaa;
-`;
+const TRACK_BG = '#e8e0d2';
+const ACCENT = '#c9a96e';
 
 export interface SliderRangeFilterProps {
   min: number;
@@ -42,10 +13,10 @@ export interface SliderRangeFilterProps {
 }
 
 export const SliderRangeFilter: React.FC<SliderRangeFilterProps> = ({ min, max, value, onChange }) => (
-  <RangeContainer>
-    <RangeLabel>
+  <div className="flex flex-col gap-2">
+    <label className="text-[12px] font-medium tabular-nums text-stone-500">
       Range: {value[0]} – {value[1]}
-    </RangeLabel>
+    </label>
     <Range
       values={value}
       step={STEP}
@@ -53,22 +24,29 @@ export const SliderRangeFilter: React.FC<SliderRangeFilterProps> = ({ min, max, 
       max={max}
       onChange={(vals: number[]) => onChange([vals[0], vals[1]])}
       renderTrack={({ props, children }) => (
-        <StyledTrack
+        <div
           {...props}
+          className="my-4 h-1.5 w-full rounded-full"
           style={{
             ...props.style,
             background: getTrackBackground({
               values: value,
-              colors: ['#e5e7eb', '#2563eb', '#e5e7eb'],
+              colors: [TRACK_BG, ACCENT, TRACK_BG],
               min,
               max,
             }),
           }}
         >
           {children}
-        </StyledTrack>
+        </div>
       )}
-      renderThumb={({ props }) => <Thumb {...props} />}
+      renderThumb={({ props }) => (
+        <div
+          {...props}
+          className="h-4.5 w-4.5 rounded-full border-2 border-white bg-[#c9a96e] shadow-[0_2px_8px_rgba(201,169,110,0.5)]"
+          style={{ ...props.style, height: 18, width: 18 }}
+        />
+      )}
     />
-  </RangeContainer>
-); 
+  </div>
+);

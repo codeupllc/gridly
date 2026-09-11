@@ -1,3 +1,5 @@
+export type TableThemeName = 'light' | 'dark' | 'blue' | 'green' | 'slate';
+
 export interface TableTheme {
     container?: string;
     header?: string;
@@ -9,5 +11,8 @@ export interface TableTheme {
     selected?: string;
     border?: string;
     input?: string;
+    filterInput?: string;
     inputPlaceholder?: string;
-} 
+    muted?: string;
+    button?: string;
+}

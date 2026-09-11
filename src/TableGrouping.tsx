@@ -1,12 +1,14 @@
 import React from 'react';
+import { flexRender } from '@tanstack/react-table';
 
 export function TableGrouping({ grouping, setGrouping, table, theme, isDragging, setIsDragging }: any) {
-    // Group By UI logic moved from Table.tsx
     return (
         <div
-            className={`mb-4 p-4 rounded border-2 border-dashed transition-colors ${isDragging ? 'border-blue-400 bg-blue-50' : 'border-gray-300'} ${theme.container}`}
+            className={`flex min-h-[36px] flex-wrap items-center gap-2 rounded-full border px-3 py-1.5 transition-colors ${
+                isDragging ? 'border-slate-400 bg-slate-50' : theme.border || 'border-slate-200'
+            } ${theme.container || 'bg-white'}`}
             onDragOver={e => { e.preventDefault(); setIsDragging(true); }}
-            onDragLeave={e => { setIsDragging(false); }}
+            onDragLeave={() => setIsDragging(false)}
             onDrop={e => {
                 setIsDragging(false);
                 const columnId = e.dataTransfer.getData('text/plain');
@@ -15,41 +17,36 @@ export function TableGrouping({ grouping, setGrouping, table, theme, isDragging,
                 }
             }}
         >
-            <h3 className="text-sm font-semibold mb-2">Group By</h3>
-            <div className="text-xs text-gray-500 mb-2 flex items-center gap-1">
-                <span>Drag <span className="font-bold">≡</span> from a column header here to group</span>
-            </div>
-            <div className="flex gap-2 min-h-[40px] items-center">
-                {grouping.length === 0 ? (
-                    <div className="flex items-center gap-2 text-gray-400">
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h8m-4-4v8" />
-                        </svg>
-                        <span>Drag columns here to group</span>
-                    </div>
-                ) : (
-                    grouping.map((columnId: string, index: number) => {
-                        const column = table.getColumn(columnId);
-                        const headerObj = table.getHeaderGroups()[0]?.headers.find((h: any) => h.column.id === columnId);
-                        return (
-                            <div
-                                key={columnId}
-                                className={`px-3 py-1 rounded-full text-sm flex items-center gap-2 ${theme.groupChip}`}
+            <span className={`text-[11px] font-medium uppercase tracking-[0.16em] ${theme.muted || 'text-slate-400'}`}>
+                Group
+            </span>
+            {grouping.length === 0 ? (
+                <span className={`text-[13px] ${theme.muted || 'text-slate-400'}`}>
+                    {isDragging ? 'Drop to group' : 'Drag a column header here'}
+                </span>
+            ) : (
+                grouping.map((columnId: string) => {
+                    const headerObj = table.getHeaderGroups()[0]?.headers.find((h: any) => h.column.id === columnId);
+                    return (
+                        <span
+                            key={columnId}
+                            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[12px] font-medium ${theme.groupChip || 'bg-slate-900 text-white'}`}
+                        >
+                            {headerObj
+                                ? flexRender(headerObj.column.columnDef.header, headerObj.getContext())
+                                : columnId}
+                            <button
+                                type="button"
+                                onClick={() => setGrouping(grouping.filter((id: string) => id !== columnId))}
+                                className="ml-0.5 text-current/70 hover:text-current"
+                                aria-label="Remove group"
                             >
-                                {headerObj ? headerObj.column.columnDef.header(headerObj.getContext()) : columnId}
-                                <button
-                                    onClick={() => {
-                                        setGrouping(grouping.filter((id: string) => id !== columnId));
-                                    }}
-                                    className="hover:text-red-600"
-                                >
-                                    ×
-                                </button>
-                            </div>
-                        );
-                    })
-                )}
-            </div>
+                                ×
+                            </button>
+                        </span>
+                    );
+                })
+            )}
         </div>
     );
-} 
+}
