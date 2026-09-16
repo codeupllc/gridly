@@ -16,6 +16,7 @@ import {
     ColumnOrderState,
     FilterFn,
     VisibilityState,
+    ExpandedState,
 } from '@tanstack/react-table';
 import { DragDropContext, Droppable, Draggable, DropResult, DroppableProvided, DraggableProvided } from '@hello-pangea/dnd';
 import { TableGrouping } from './TableGrouping';
@@ -25,6 +26,7 @@ import { TableBody } from './TableBody';
 import { ColumnVisibilityPopover } from './components/ColumnVisibilityPopover';
 import { SearchBar } from './components/SearchBar';
 import { TableTheme, TableThemeName } from './types';
+import { rowMatchesGlobalFilter } from './globalFilter';
 
 export type { TableTheme, TableThemeName };
 
@@ -36,6 +38,8 @@ export interface TableProps<T extends object> {
     onRowClick?: (row: T) => void;
     enableGrouping?: boolean;
     groupBy?: string[];
+    /** Per-column search boxes. Off by default — use the main search, or set meta.filterType to opt a column in. */
+    showColumnFilters?: boolean;
     theme?: TableThemeName;
     customTheme?: TableTheme;
     cellPadding?: string;
@@ -49,24 +53,8 @@ export interface TableProps<T extends object> {
     emptyMessage?: string;
 }
 
-// Register the global filter function
-const myGlobalFilter: FilterFn<any> = (row, columnId, filterValue) => {
-    return Object.values(row.original).some(val => {
-        if (typeof val === 'string') {
-            return val.toLowerCase().includes(filterValue.toLowerCase());
-        }
-        if (typeof val === 'number') {
-            return val.toString().includes(filterValue);
-        }
-        // Check for nested objects (e.g., campaign)
-        if (val && typeof val === 'object') {
-            return Object.values(val).some(nestedVal =>
-                (typeof nestedVal === 'string' && nestedVal.toLowerCase().includes(filterValue.toLowerCase())) ||
-                (typeof nestedVal === 'number' && nestedVal.toString().includes(filterValue))
-            );
-        }
-        return false;
-    });
+const myGlobalFilter: FilterFn<any> = (row, _columnId, filterValue) => {
+    return rowMatchesGlobalFilter(row.original, filterValue);
 };
 
 export function Table<T extends object>({
@@ -77,6 +65,7 @@ export function Table<T extends object>({
     onRowClick,
     enableGrouping = false,
     groupBy = [],
+    showColumnFilters = false,
     theme = 'light',
     customTheme,
     cellPadding = 'px-4 py-3.5',
@@ -96,15 +85,19 @@ export function Table<T extends object>({
     });
     const [grouping, setGrouping] = useState<GroupingState>(groupBy);
     const [isDragging, setIsDragging] = useState(false);
-    const [expanded, setExpanded] = useState({});
+    const [expanded, setExpanded] = useState<ExpandedState>(() => (enableGrouping ? true : {}));
     const [columnOrder, setColumnOrder] = useState<ColumnOrderState>(() =>
         columns.map(col => (col as any).id || (col as any).accessorKey)
     );
     const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
     const [searchValue, setSearchValue] = useState(globalFilter);
+    const [appliedFilter, setAppliedFilter] = useState(globalFilter);
     const [showDropdown, setShowDropdown] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [showSearch, setShowSearch] = useState(false);
+
+    const onFilterChangeRef = useRef(onGlobalFilterChange);
+    onFilterChangeRef.current = onGlobalFilterChange;
 
     const table = useReactTable({
         data,
@@ -112,7 +105,7 @@ export function Table<T extends object>({
         state: {
             sorting,
             pagination,
-            globalFilter,
+            globalFilter: appliedFilter,
             grouping: enableGrouping ? grouping : [],
             expanded,
             columnOrder,
@@ -131,27 +124,41 @@ export function Table<T extends object>({
         ...(enableGrouping && { getGroupedRowModel: getGroupedRowModel() }),
         getExpandedRowModel: getExpandedRowModel(),
         autoResetPageIndex: false,
+        autoResetExpanded: false,
         enableColumnFilters: true,
         filterFns: { myGlobalFilter },
-        globalFilterFn: 'myGlobalFilter' as any,
-        onGlobalFilterChange,
+        globalFilterFn: myGlobalFilter,
+        onGlobalFilterChange: (updater) => {
+            const next = typeof updater === 'function' ? updater(appliedFilter) : updater;
+            const value = next ?? '';
+            setAppliedFilter(value);
+            setSearchValue(value);
+            onFilterChangeRef.current?.(value);
+        },
     });
 
     const allLeafColumns = table.getAllLeafColumns();
 
     useEffect(() => {
         const handler = setTimeout(() => {
-            if (onGlobalFilterChange) {
-                onGlobalFilterChange(searchValue);
-            } else {
-                table.setGlobalFilter(searchValue);
-            }
-        }, 300);
+            setAppliedFilter(searchValue);
+            onFilterChangeRef.current?.(searchValue);
+        }, 200);
         return () => clearTimeout(handler);
     }, [searchValue]);
 
     useEffect(() => {
+        setPagination((prev) => (prev.pageIndex === 0 ? prev : { ...prev, pageIndex: 0 }));
+    }, [appliedFilter]);
+
+    useEffect(() => {
+        if (enableGrouping && appliedFilter) setExpanded(true);
+    }, [appliedFilter, enableGrouping]);
+
+    useEffect(() => {
+        if (!onFilterChangeRef.current) return;
         setSearchValue(globalFilter);
+        setAppliedFilter(globalFilter);
     }, [globalFilter]);
 
     const handleDragEnd = (result: DropResult) => {
@@ -268,19 +275,17 @@ export function Table<T extends object>({
     return (
         <div className={`${t.container}`}>
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                    {enableGrouping && (
-                        <TableGrouping
-                            grouping={grouping}
-                            setGrouping={setGrouping}
-                            table={table}
-                            theme={t}
-                            isDragging={isDragging}
-                            setIsDragging={setIsDragging}
-                        />
-                    )}
-                </div>
-                <div className="flex items-center gap-2">
+                {enableGrouping ? (
+                    <TableGrouping
+                        grouping={grouping}
+                        setGrouping={setGrouping}
+                        table={table}
+                        theme={t}
+                        isDragging={isDragging}
+                        setIsDragging={setIsDragging}
+                    />
+                ) : null}
+                <div className="ml-auto flex min-w-0 flex-wrap items-center justify-end gap-2">
                     {customGlobalSearch ? (
                         customGlobalSearch
                     ) : showGlobalSearch ? (
@@ -348,6 +353,7 @@ export function Table<T extends object>({
                         theme={t}
                         cellPadding={cellPadding}
                         enableGrouping={enableGrouping}
+                        showColumnFilters={showColumnFilters}
                         onDragEnd={handleDragEnd}
                     />
                     <TableBody

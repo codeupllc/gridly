@@ -51,7 +51,7 @@ function ColumnSearchInput({
     );
 }
 
-export function TableHeader({ table, theme, cellPadding, enableGrouping, onDragEnd }: any) {
+export function TableHeader({ table, theme, cellPadding, enableGrouping, showColumnFilters, onDragEnd }: any) {
     return (
         <thead>
             {table.getHeaderGroups().map((headerGroup: any) => (
@@ -62,7 +62,7 @@ export function TableHeader({ table, theme, cellPadding, enableGrouping, onDragE
                                 {headerGroup.headers.filter((header: any) => header.column.getIsVisible()).map((header: any, idx: number) => {
                                     const showFilter =
                                         Boolean(header.column.columnDef.meta?.filterType) ||
-                                        header.column.getCanFilter();
+                                        (showColumnFilters && header.column.getCanFilter());
                                     return (
                                         <th
                                             key={header.id}

@@ -21,7 +21,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
             </svg>
         </span>
         <input
-            className={`h-9 w-64 rounded-full border pl-9 pr-3 text-[13px] outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-900/5 ${theme.input || 'bg-white text-slate-900 border-slate-200'}`}
+            className={`h-9 w-full max-w-sm min-w-[16rem] rounded-full border pl-9 pr-3 text-[13px] outline-none transition placeholder:text-slate-400 focus:border-slate-400 focus:ring-4 focus:ring-slate-900/5 ${theme.input || 'bg-white text-slate-900 border-slate-200'}`}
             type="search"
             placeholder={theme.inputPlaceholder || 'Search records…'}
             value={searchValue}
