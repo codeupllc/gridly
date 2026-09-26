@@ -347,7 +347,7 @@ export function Table<T extends object>({
                 </div>
             </div>
             <div className="overflow-x-auto">
-                <table className={`w-full min-w-full border-collapse ${t.container}`}>
+                <table className={`w-max min-w-full border-collapse ${t.container}`}>
                     <TableHeader
                         table={table}
                         theme={t}
